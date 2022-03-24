@@ -1214,7 +1214,14 @@ void MainWindow::addStream(const QString &remote, const QString &stream) {
   ui.jobs->insertWidget(1, line);
   ui.tabs->setTabText(1, QString("Jobs (%1)").arg(++mJobCount));
 
-  player->start(stream, QProcess::ReadOnly);
+  QStringList params = stream.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+  if (params.size() > 0) {
+    QString cmd = params.value(0);
+    params.removeFirst();
+    player->start(cmd, params, QProcess::ReadOnly);
+  } else {
+    player->start(stream, QStringList(), QProcess::ReadOnly);
+  }
   UseRclonePassword(rclone);
   rclone->start(GetRclone(),
                 QStringList() << "cat" << GetRcloneConf() << remote,
